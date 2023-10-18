@@ -1,0 +1,97 @@
+replicaCount: 2
+deploy:
+  strategy:
+    type: rollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+      steps: null
+    blueGreen:
+      autoPromotionEnabled: false
+    canary:
+      maxSurge: "25%"
+      maxUnavailable: 0
+      steps:
+        - setWeight: 25
+        - pause: {}
+image:
+  repository: "harbor.skb-suy-tks-tst.btvpaas.com/skb-demo-app-gradle/skb-demo-app-stable-app"
+  pullPolicy: Always
+  tag: "1.0.0"
+imagePullSecrets:
+  - name: harbor-cred
+nameOverride: ""
+fullnameOverride: ""
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+podAnnotations: {}
+podAdditionLabels:
+  cached: nosetvalue
+podSecurityContext:
+  sysctls:
+    - name: "net.ipv4.ip_unprivileged_port_start"
+      value: "0"
+securityContext: {}
+service:
+  type: ClusterIP
+  port: 80
+ingress:
+  enabled: true
+  className: "f5"
+  annotations:
+    ingress.kubernetes.io/allow-http: "false"
+    ingress.kubernetes.io/ssl-redirect: "true"
+    virtual-server.f5.com/health: |
+      [
+        {
+          "path":     "demoapp.skb-suy-tks-tst.btvpaas.com/",
+          "send":     "HTTP GET /",
+          "interval": 5,
+          "timeout":  10
+        }
+      ]
+    virtual-server.f5.com/ip: 175.113.150.151
+    virtual-server.f5.com/partition: suy_tks_tst
+  hosts:
+    - host: demoapp.skb-suy-tks-tst.btvpaas.com
+      paths:
+        - path: /
+          pathType: Prefix
+hostAliases: []
+resources: {}
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+nodeSelector: {}
+tolerations: []
+affinity: {}
+livenessProbe:
+  enabled: true
+  path: /
+  initialDelaySeconds: 5
+  timeoutSeconds: 3
+  periodSeconds: 10
+  failureThreshold: 5
+readinessProbe:
+  enabled: true
+  path: /
+  initialDelaySeconds: 5
+  timeoutSeconds: 3
+  periodSeconds: 10
+  failureThreshold: 5
+lifecycle: null
+persistence:
+  enabled: false
+  storageClass: netapp
+  storage: 5Gi
+  mountPath: "/data"
+configMap:
+  enabled: false
+  data: null
+secret:
+  enabled: false
+timestamp: '1697446231295'
