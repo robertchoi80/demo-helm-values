@@ -16,9 +16,9 @@ deploy:
         - setWeight: 25
         - pause: {}
 image:
-  repository: "harbor.skb-suy-tks-tst.btvpaas.com/skb-demo-app-gradle/prd-skb-demo-app-stable-app"
+  repository: "robertchoi80/demo-app-gradle"
   pullPolicy: Always
-  tag: "1.0.4"
+  tag: "v1"
 imagePullSecrets:
   - name: harbor-cred
 nameOverride: ""
